@@ -22,7 +22,7 @@ same name.}
 parameter should be a data frame consisting of two columns,
 a fips code (2 characters for state, 5 characters for county)
 and the value that should be associated with that region. The
-columns of \code{data} _must_ be \code{fips} and the value of the
+columns of \code{data} \emph{must} be \code{fips} and the value of the
 `values` parameter.}
 
 \item{values}{The name of the column that contains the values to be associated
@@ -57,6 +57,9 @@ plot_usmap(regions = "county")
 library(ggplot2)
 plot_usmap(include = c("CA", "NV", "ID", "OR", "WA")) +
   labs(title = "Western States")
+
+# Color maps with data
+plot_usmap(data = statepop, values = "pop_2015")
 
 }
 \seealso{
