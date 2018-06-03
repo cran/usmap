@@ -5,8 +5,12 @@
 #'   this function to obtain the FIPS code for a state or
 #'   county.
 #'
-#' @param state The state for which to obtain a FIPS code.
+#' @param state The state(s) for which to obtain a FIPS code(s).
 #'  Can be entered as either a state abbreviation or full name (case-insensitive).
+#'
+#'  `state` can be entered as either a single state or a vector of states.
+#'  If `state` is a vector, `county` must be omitted.
+#'
 #' @param county The county for which to obtain a FIPS code.
 #'  Can be entered with or without "county" (case-insensitive).
 #'
@@ -21,11 +25,21 @@
 #'   information for the 50 US states (and their associated counties and
 #'   census designated areas).
 #'
-#' @return The FIPS code of given \code{state} or \code{county}.
+#' @return The FIPS code(s) of given \code{state} or \code{county}.
+#'
+#' If only states are entered, a vector of length equal to the number of states
+#' is returned. If any states are not found or are invalid, `NA` is returned in their place.
+#'
+#' If a state and county are entered, a single value with the FIPS code
+#' for the given county is returned. If the county is invalid for the given state,
+#' an error is thrown.
 #'
 #' @examples
 #' fips("NJ")
 #' fips("California")
+#'
+#' fips(c("AK", "CA", "UT"))
+#'
 #' fips("CA", county = "orange")
 #' fips(state = "AL", county = "autauga")
 #' fips(state = "Alabama", county = "Autauga County")
@@ -42,25 +56,32 @@ fips <- function(state, county = "") {
     df <- utils::read.csv(system.file("extdata", "state_fips.csv", package = "usmap"))
     abbr <- tolower(df$abbr)
     full <- tolower(df$full)
+    fips2 <- c(df$fips, df$fips)
 
-    if (!(state_ %in% abbr) & !(state_ %in% full)) {
-      stop(paste(state_, "is not a valid state."))
-    } else {
-      sprintf("%02d", df$fips[which(abbr == state_ | full == state_)])
-    }
+    result <- fips2[match(state_, c(abbr, full))]
+
+    formatted_result <- sprintf("%02d", result)
+    formatted_result[formatted_result == "NA"] <- NA
+    formatted_result
   } else {
+    if (length(state_) > 1) {
+      stop("`county` parameter cannot be used with multiple states.")
+    }
+
     df <- utils::read.csv(system.file("extdata", "county_fips.csv", package = "usmap"))
     name <- tolower(df$county)
     state_abbr <- tolower(df$abbr)
     state_full <- tolower(df$full)
 
-    if (!(county_ %in% name) & !(county_ %in% trimws(sub("county", "", name)))) {
-      stop(paste(county_, "is not a valid county."))
+    result <- df$fips[which(
+      (name == county_ | name == paste(county_, "county")) &
+        (state_abbr == state_ | state_full == state_)
+    )]
+
+    if (length(result) == 0) {
+      stop(paste0(county, " is not a valid county in ", state, "."))
     } else {
-      sprintf("%05d", df$fips[which(
-        (name == county_ | name == paste(county_, "county")) &
-          (state_abbr == state_ | state_full == state_)
-      )])
+      sprintf("%05d", result)
     }
   }
 }
@@ -97,7 +118,7 @@ fips_info.numeric <- function(fips) {
   } else if (all(fips >= 1 & fips <= 56)) {
     fips_ <- sprintf("%02d", fips)
   } else {
-    stop("Invalid FIPS code(s), must be 2 digit (states) or 5 digit (counties).")
+    stop("Invalid FIPS code(s), must be either 2 digit (states) or 5 digit (counties), but not both.")
   }
 
   getFipsInfo(fips_)
@@ -111,7 +132,7 @@ fips_info.character <- function(fips) {
   } else if (all(nchar(fips) %in% 1:2)) {
     fips_ <- sprintf("%02s", fips)
   } else {
-    stop("Invalid FIPS code, must be 2 digit (states) or 5 digit (counties).")
+    stop("Invalid FIPS code, must be either 2 digit (states) or 5 digit (counties), but not both.")
   }
 
   getFipsInfo(fips_)
@@ -137,8 +158,15 @@ getFipsInfo <- function(fips) {
     result <- df[df$fips %in% fips, ]
   }
 
+  # Present warning if no results found.
   if (nrow(result) == 0) {
     warning(paste("FIPS code(s)", toString(fips), "not found, returned 0 results."))
+  }
+
+  # Present warning if any FIPS codes included are not found.
+  if (!all(fips %in% result$fips)) {
+    excluded_fips <- fips[which(!fips %in% result$fips)]
+    warning(paste("FIPS code(s)", toString(excluded_fips), "not found, excluded from result."))
   }
 
   rownames(result) <- NULL
