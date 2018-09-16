@@ -6,7 +6,8 @@
 \usage{
 plot_usmap(regions = c("states", "state", "counties", "county"),
   include = c(), data = data.frame(), values = "values",
-  theme = theme_map(), lines = "black")
+  theme = theme_map(), lines = "black", labels = FALSE,
+  label_color = "black")
 }
 \arguments{
 \item{regions}{The region breakdown for the map, can be one of
@@ -16,7 +17,8 @@ The default is \code{"states"}.}
 \item{include}{The regions to include in the output data frame. If \code{regions} is
 \code{"states"}/\code{"state"}, the value can be either a state name, abbreviation or FIPS code.
 For counties, the FIPS must be provided as there can be multiple counties with the
-same name.}
+same name. If states are provided in the county map, only counties in the included states
+will be returned.}
 
 \item{data}{A data frame containing values to plot on the map. This
 parameter should be a data frame consisting of two columns,
@@ -34,6 +36,15 @@ is \code{\link[ggthemes]{theme_map}}.}
 \item{lines}{The line color to be used in the map. Corresponds to the
 \code{colour} option in the \code{\link[ggplot2]{aes}} mapping. The default
 is \code{"black"}. \href{http://www.stat.columbia.edu/~tzheng/files/Rcolor.pdf}{Click here}
+for more color options.}
+
+\item{labels}{Whether or not to display labels on the map. Labels are not displayed
+by default. For now, labels only work for state maps.
+County labels may be added in the future.}
+
+\item{label_color}{The color of the labels to display. Corresponds to the \code{colour}
+option in the \code{\link[ggplot2]{aes}} mapping. The default is \code{"black"}.
+\href{http://www.stat.columbia.edu/~tzheng/files/Rcolor.pdf}{Click here}
 for more color options.}
 }
 \value{
@@ -60,6 +71,11 @@ plot_usmap(include = c("CA", "NV", "ID", "OR", "WA")) +
 
 # Color maps with data
 plot_usmap(data = statepop, values = "pop_2015")
+
+# Include labels on map (e.g. state abbreviations)
+plot_usmap(data = statepop, values = "pop_2015", labels = TRUE)
+# Choose color for labels
+plot_usmap(data = statepop, values = "pop_2015", labels = TRUE, label_color = "white")
 
 }
 \seealso{

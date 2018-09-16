@@ -5,27 +5,30 @@ knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 library(usmap)
 library(ggplot2)
 
-usmap::plot_usmap(regions = "counties") + 
+plot_usmap(regions = "counties") + 
   labs(title = "US Counties", subtitle = "This is a blank map of the counties of the United States.") + 
   theme(panel.background = element_rect(colour = "black", fill = "lightblue"))
 
 ## ---- fig.align='center', fig.width=7, message=FALSE, warning=FALSE------
+library(usmap)
 library(ggplot2)
 
-usmap::plot_usmap(include = c("CA", "ID", "NV", "OR", "WA")) +
+plot_usmap(include = c("CA", "ID", "NV", "OR", "WA")) +
   labs(title = "Western US States", subtitle = "These are the states in the Pacific Timezone.")
 
 ## ---- fig.align='center', fig.width=7, message=FALSE, warning=FALSE------
+library(usmap)
 library(ggplot2)
 
-usmap::plot_usmap(data = statepop, values = "pop_2015", lines = "red") + 
+plot_usmap(data = statepop, values = "pop_2015", lines = "red") + 
   scale_fill_continuous(name = "Population (2015)", label = scales::comma) + 
   theme(legend.position = "right")
 
 ## ---- fig.align='center', fig.width=7, message=FALSE, warning=FALSE------
+library(usmap)
 library(ggplot2)
 
-usmap::plot_usmap(data = statepop, values = "pop_2015", lines = "red") + 
+plot_usmap(data = statepop, values = "pop_2015", lines = "red") + 
   scale_fill_continuous(
     low = "white", high = "red", name = "Population (2015)", label = scales::comma
   ) + theme(legend.position = "right")

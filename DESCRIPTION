@@ -1,5 +1,5 @@
 Package: usmap
-Version: 0.3.0
+Version: 0.4.0
 Title: US Maps Including Alaska and Hawaii
 Description: Obtain United States map data frames of varying region types (e.g. county, 
     state). The map data frames include Alaska and Hawaii conveniently placed to the
@@ -14,11 +14,11 @@ URL: https://dilorenzo.pl/pkgs/usmap
 BugReports: https://github.com/pdil/usmap/issues
 Imports: utils
 Suggests: ggplot2, knitr, proto, rmarkdown, scales, stringr, testthat
-RoxygenNote: 6.0.1
+RoxygenNote: 6.1.0
 VignetteBuilder: knitr
 NeedsCompilation: no
-Packaged: 2018-06-03 04:40:36 UTC; paolo
+Packaged: 2018-09-15 23:44:48 UTC; paolo
 Author: Paolo Di Lorenzo [aut, cre]
 Maintainer: Paolo Di Lorenzo <paolo@dilorenzo.pl>
 Repository: CRAN
-Date/Publication: 2018-06-03 13:29:52 UTC
+Date/Publication: 2018-09-16 04:30:03 UTC
