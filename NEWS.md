@@ -1,3 +1,23 @@
+# usmap 0.5.0
+
+### New Features
+* Ability to include county name labels on county maps, see [Issue #14](https://github.com/pdil/usmap/issues/14).
+  * They currently work the same as state labels except they include the full county name (excluding the word "County").
+* Ability to pass `ggplot2::geom_polygon()` parameters to `plot_usmap()`, see [Issue #15](https://github.com/pdil/usmap/issues/15).
+  * This is a breaking change and removes the `lines` parameter. The previous defaults of `color="black"`, `fill="white"`, and `size=0.4` are maintained and will be used for any of those parameters that are omitted.
+  * Refer to the `ggplot2::geom_polygon()` documentation for more information.
+  * The following aesthetics are supported: `alpha`, `colour`/`color`, `fill`, `linetype`, `size`
+  * This feature provides more direct control over the appearance of plots.
+* Ability to exclude counties and states with new `exclude` parameter in `us_map`, `map_with_data`, and `plot_usmap`, see [Issue #19](https://github.com/pdil/usmap/issues/19).
+* New function (`usmap_transform`) to transform longitude/latitude point data frames into coordinate reference system that matches the plotted map, see [Issue #21](https://github.com/pdil/usmap/issues/21).
+  * Also includes `usmap_crs()` to easily access the coordinate reference system used by the package.
+  
+### Improvements
+* In the data frames provided by `us_map()`, `long` and `lat` have been renamed to `x` and `y`, respectively, see [Issue #16](https://github.com/pdil/usmap/issues/16).
+  * This should not affect the behavior of `plot_usmap()` but will be a breaking change for any code that relies on `us_map()`.
+* Added contributing guidelines and templates, see [Issue #24](https://github.com/pdil/usmap/issues/24).
+  * These can be see in the [.github folder](https://github.com/pdil/usmap/tree/master/.github).
+
 # usmap 0.4.0
 
 ### New Features

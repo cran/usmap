@@ -105,3 +105,59 @@
 #'   }
 #' @keywords data
 "statepov"
+
+#' Most populous city in each state (2010)
+#'
+#' @description The most populous city in each US state, as of the 2010 US Census.\cr\cr
+#'   The data is formatted for transforming with \code{\link[usmap]{usmap_transform}}.
+#'   Once the longitude and latitude is transformed, it can be added to
+#'   \code{\link[usmap]{plot_usmap}} using \code{ggplot2} layers.
+#'
+#' @usage data(citypop)
+#'
+#' @details
+#' \itemize{
+#'   \item \code{lon} The longitude of the most populous city.
+#'   \item \code{lat} The latitude of the most populous city.
+#'   \item \code{state} The name of the state containing the city.
+#'   \item \code{most_populous_city} The name of the city.
+#'   \item \code{city_pop} The population of the city.
+#' }
+#'
+#' @name citypop
+#' @format A data frame with 51 rows and 5 variables.
+#' @docType data
+#' @references
+#'   \itemize{
+#'     \item \url{https://www.census.gov/programs-surveys/decennial-census/decade.2010.html}
+#'   }
+#' @keywords data
+"citypop"
+
+#' Earthquakes (2019)
+#'
+#' @description US earthquakes with a magnitude of 2.5 or greater, occurring in the
+#'   first half of 2019, from January 1st to June 30th, from USGS.\cr\cr
+#'   The data is formatted for transforming with \code{\link[usmap]{usmap_transform}}.
+#'   Once the longitude and latitude is transformed, it can be added to
+#'   \code{\link[usmap]{plot_usmap}} using \code{ggplot2} layers.
+#'
+#' @usage data(earthquakes)
+#'
+#' @details
+#' \itemize{
+#'   \item \code{lon} The longitude of the earthquake's location.
+#'   \item \code{lat} The latitude of the earthquake's location.
+#'   \item \code{mag} The magnitude of the earthquake.
+#' }
+#'
+#' @name earthquakes
+#' @format A data frame with 2254 rows and 3 variables.
+#' @docType data
+#' @references
+#'   \itemize{
+#'     \item \url{https://earthquake.usgs.gov/earthquakes/}
+#'     \item \url{https://earthquake.usgs.gov/earthquakes/search/}
+#'   }
+#' @keywords data
+"earthquakes"

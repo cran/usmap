@@ -10,18 +10,21 @@
 #' @param values The name of the column that contains the values to be associated
 #'   with a given region. The default is \code{"value"}.
 #' @param theme The theme that should be used for plotting the map. The default
-#'   is \code{\link[ggthemes]{theme_map}}.
-#' @param lines The line color to be used in the map. Corresponds to the
-#'   \code{colour} option in the \code{\link[ggplot2]{aes}} mapping. The default
-#'   is \code{"black"}. \href{http://www.stat.columbia.edu/~tzheng/files/Rcolor.pdf}{Click here}
-#'   for more color options.
+#'   is \code{theme_map} from \href{https://github.com/jrnold/ggthemes}{ggthemes}.
 #' @param labels Whether or not to display labels on the map. Labels are not displayed
 #'   by default. For now, labels only work for state maps.
 #'   County labels may be added in the future.
-#' @param label_color The color of the labels to display. Corresponds to the \code{colour}
+#' @param label_color The color of the labels to display. Corresponds to the \code{color}
 #'   option in the \code{\link[ggplot2]{aes}} mapping. The default is \code{"black"}.
 #'   \href{http://www.stat.columbia.edu/~tzheng/files/Rcolor.pdf}{Click here}
 #'   for more color options.
+#' @param ... Other arguments to pass to \code{ggplot2::aes()}. These are
+#'   often aesthetics, used to set an aesthetic to a fixed value, like \code{color = "red"}
+#'   or \code{size = 3}. They affect the appearance of the polygons used to render
+#'   the map (for example fill color, line color, line thickness, etc.). If any of
+#'   \code{color}/\code{colour}, \code{fill}, or \code{size} are not specified they
+#'   are set to their default values of \code{color="black"}, \code{fill="white"},
+#'   and \code{size=0.4}.
 #'
 #' @return A \code{\link[ggplot2]{ggplot}} object that contains a basic
 #'   US map with the described parameters. Since the result is a \code{ggplot}
@@ -54,60 +57,101 @@
 #' @export
 plot_usmap <- function(regions = c("states", "state", "counties", "county"),
                        include = c(),
+                       exclude = c(),
                        data = data.frame(),
                        values = "values",
                        theme = theme_map(),
-                       lines = "black",
                        labels = FALSE,
-                       label_color = "black") {
+                       label_color = "black",
+                       ...) {
 
+  # check for ggplot2
   if (!requireNamespace("ggplot2", quietly = TRUE)) {
-    stop("Please install `ggplot2`. Use: install.packages(\"ggplot2\")")
+    stop("`ggplot2` must be installed to use `plot_usmap`.
+         Use: install.packages(\"ggplot2\") and try again.")
   }
 
+  # parse parameters
   regions_ <- match.arg(regions)
+  geom_args <- list(...)
 
-  if (nrow(data) == 0) {
-    map_df <- us_map(regions = regions_, include = include)
-    polygon_layer <- ggplot2::geom_polygon(
-      ggplot2::aes(x = map_df$long, y = map_df$lat, group = map_df$group),
-      colour = lines, fill = "white", size = 0.4
-    )
-  } else {
-    map_df <- map_with_data(data, values = values, include = include)
-    polygon_layer <- ggplot2::geom_polygon(
-      ggplot2::aes(x = map_df$long, y = map_df$lat, group = map_df$group, fill = map_df[, values]),
-      colour = lines, size = 0.4
-    )
+  # set geom_polygon defaults
+  if (is.null(geom_args[["colour"]]) & is.null(geom_args[["color"]])) {
+    geom_args[["color"]] <- "black"
   }
 
+  if (is.null(geom_args[["size"]])) {
+    geom_args[["size"]] <- 0.4
+  }
+
+  # only use "fill" setting if data is not included
+  if (is.null(geom_args[["fill"]]) & nrow(data) == 0) {
+    geom_args[["fill"]] <- "white"
+  } else if (!is.null(geom_args[["fill"]]) & nrow(data) != 0) {
+    warning("`fill` setting is ignored when `data` is provided. Use `fill` to color regions with solid color when no data is being displayed.")
+  }
+
+  # create polygon layer
+  if (nrow(data) == 0) {
+    map_df <- us_map(regions = regions_, include = include, exclude = exclude)
+    geom_args[["mapping"]] <- ggplot2::aes(x = map_df$x, y = map_df$y,
+                                           group = map_df$group)
+  } else {
+    map_df <- map_with_data(data, values = values, include = include, exclude = exclude)
+    geom_args[["mapping"]] <- ggplot2::aes(x = map_df$x, y = map_df$y,
+                                           group = map_df$group, fill = map_df[, values])
+  }
+
+  polygon_layer <- do.call(ggplot2::geom_polygon, geom_args)
+
+  # create label layer
   if (labels) {
+    centroidLabelsColClasses <- c("numeric", "numeric", "character", "character", "character")
+
     if (regions_ == "county" | regions_ == "counties") {
-      warning("`labels` is currently only supported for state maps. It has no effect on county maps.")
-      label_layer <- ggplot2::geom_blank()
+      # add extra column for the county name
+      centroidLabelsColClasses <- c(centroidLabelsColClasses, "character")
+    }
+
+    centroid_labels <- utils::read.csv(system.file("extdata", paste0("us_", regions_, "_centroids.csv"), package = "usmap"),
+                                       colClasses = centroidLabelsColClasses,
+                                       stringsAsFactors = FALSE)
+
+    if (length(include) > 0) {
+      centroid_labels <- centroid_labels[
+        centroid_labels$full %in% include |
+          centroid_labels$abbr %in% include |
+          centroid_labels$fips %in% include, ]
+    }
+
+    if (length(exclude) > 0) {
+      centroid_labels <- centroid_labels[!(
+        centroid_labels$full %in% exclude |
+          centroid_labels$abbr %in% exclude |
+          centroid_labels$fips %in% exclude |
+          substr(centroid_labels$fips, 1, 2) %in% exclude), ]
+    }
+
+    if (regions_ == "county" | regions_ == "counties") {
+      label_layer <- ggplot2::geom_text(
+        data = centroid_labels,
+        ggplot2::aes(x = centroid_labels$x,
+                     y = centroid_labels$y,
+                     label = sub(" County", "", centroid_labels$county)),
+        color = label_color)
     } else {
-      centroid_labels <- utils::read.csv(system.file("extdata", paste0("us_", regions_, "_centroids.csv"), package = "usmap"),
-                                         colClasses = c("numeric", "numeric", "character", "character", "character"),
-                                         stringsAsFactors = FALSE)
-
-      if (length(include) > 0) {
-        centroid_labels <- centroid_labels[
-          centroid_labels$full %in% include |
-            centroid_labels$abbr %in% include |
-            centroid_labels$fips %in% include, ]
-      }
-
       label_layer <- ggplot2::geom_text(
         data = centroid_labels,
         ggplot2::aes(x = centroid_labels$x,
                      y = centroid_labels$y,
                      label = centroid_labels$abbr),
-        colour = label_color)
+        color = label_color)
     }
   } else {
     label_layer <- ggplot2::geom_blank()
   }
 
+  # construct final plot
   ggplot2::ggplot(data = map_df) + polygon_layer + label_layer + ggplot2::coord_equal() + theme
 }
 
@@ -123,20 +167,20 @@ plot_usmap <- function(regions = c("states", "state", "counties", "county"),
 #'
 #' @keywords internal
 theme_map <- function(base_size = 9, base_family = "") {
-  elementBlank = ggplot2::element_blank()
+  element_blank = ggplot2::element_blank()
  `%+replace%` <- ggplot2::`%+replace%`
   unit <- ggplot2::unit
 
   ggplot2::theme_bw(base_size = base_size, base_family = base_family) %+replace%
-    ggplot2::theme(axis.line = elementBlank,
-                   axis.text = elementBlank,
-                   axis.ticks = elementBlank,
-                   axis.title = elementBlank,
-                   panel.background = elementBlank,
-                   panel.border = elementBlank,
-                   panel.grid = elementBlank,
+    ggplot2::theme(axis.line = element_blank,
+                   axis.text = element_blank,
+                   axis.ticks = element_blank,
+                   axis.title = element_blank,
+                   panel.background = element_blank,
+                   panel.border = element_blank,
+                   panel.grid = element_blank,
                    panel.spacing = unit(0, "lines"),
-                   plot.background = elementBlank,
+                   plot.background = element_blank,
                    legend.justification = c(0, 0),
                    legend.position = c(0, 0))
 }

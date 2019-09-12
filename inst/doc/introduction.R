@@ -1,5 +1,8 @@
-## ---- echo = FALSE-------------------------------------------------------
-knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+## ----setup, include = FALSE----------------------------------------------
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
 
 ## ---- fig.align='center', fig.width=7------------------------------------
 usmap::plot_usmap()

@@ -1,12 +1,12 @@
 # 🗺 usmap
 [![CRAN](http://www.r-pkg.org/badges/version/usmap?color=blue)](https://cran.r-project.org/package=usmap) [![Downloads](http://cranlogs.r-pkg.org/badges/grand-total/usmap)](https://cran.r-project.org/package=usmap) [![Build Status](https://travis-ci.org/pdil/usmap.svg?branch=master)](https://travis-ci.org/pdil/usmap) [![codecov](https://codecov.io/gh/pdil/usmap/branch/master/graph/badge.svg)](https://codecov.io/gh/pdil/usmap)
 
-<p align="center"><img src="https://raw.githubusercontent.com/pdil/usmap/master/resources/example_plots.png" /></p>
+<p align="center"><img src="https://raw.githubusercontent.com/pdil/usmap/master/resources/example-plots.png" /></p>
 
 <details>
   <summary>View code used to generate these plots</summary>
   
-  [resources/examples.R](resources/examples.R)
+  [resources/examples.R](https://github.com/pdil/usmap/blob/master/resources/examples.R)
   
   ``` r
   library(usmap)
@@ -75,23 +75,31 @@ To install the package from this repository, run the following code in an R cons
 # install.package("devtools")
 devtools::install_github("pdil/usmap")
 ```
-Installing using `devtools::install_github` will provide the most recent developer build of `usmap`. The developer build may be unstable and not function correctly, use with caution.
+Installing using `devtools::install_github` will provide the most recent developer build of `usmap`.
 
-To begin using `usmap`, simply import the package using the `library` command:
+⚠️ The developer build may be unstable and not function correctly, use with caution.
+
+To begin using `usmap`, import the package using the `library` command:
 ```r
 library(usmap)
 ```
+
+## Documentation
 
 To read the package vignettes, which explain helpful uses of the package, use `vignette`:
 ```r
 vignette(package = "usmap")
 vignette("introduction", package = "usmap")
 vignette("mapping", package = "usmap")
+vignette("advanced-mapping", package = "usmap")
 ```
 
 You can also read the vignettes online at the following links:
 * [Introduction](https://cran.r-project.org/package=usmap/vignettes/introduction.html)
 * [Mapping the US](https://cran.r-project.org/package=usmap/vignettes/mapping.html)
+* [Advanced Mapping](https://cran.r-project.org/package=usmap/vignettes/advanced-mapping.html)
+
+For further help with this package, open an [issue](https://github.com/pdil/usmap/issues) or ask a question on Stackoverflow with the [usmap tag](https://stackoverflow.com/questions/tagged/usmap).
 
 ## Features
 * Obtain map with certain region breakdown
@@ -162,6 +170,24 @@ fips_info(c("34021", "35021"))
 #> 1 New Jersey   NJ  Mercer County 34021
 #> 2 New Mexico   NM Harding County 35021
 ```
+
+* Add FIPS codes to data frame
+```r
+data <- data.frame(
+  state = c("NJ", "NJ", "NJ", "PA"),
+  county = c("Bergen", "Hudson", "Mercer", "Allegheny")
+)
+
+library(dplyr)
+data %>% rowwise %>% mutate(fips = fips(state, county))
+
+#>   state     county  fips
+#> 1    NJ     Bergen 34003
+#> 2    NJ     Hudson 34017
+#> 3    NJ     Mercer 34021
+#> 4    PA  Allegheny 42003
+```
+
 * Plot US maps
 ```r
 plot_usmap("states")
