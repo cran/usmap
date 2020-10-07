@@ -1,4 +1,4 @@
-## ----setup, include = FALSE----------------------------------------------
+## ----setup, include = FALSE---------------------------------------------------
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
@@ -21,7 +21,7 @@ usmap::plot_usmap("counties",
                   labels = TRUE, label_color = "blue",
                   fill = "yellow", alpha = 0.25, color = "orange", size = 2)
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 usmap::usmap_crs()@projargs
 
 ## ---- fig.align='center', fig.width=8, fig.height=5, message=FALSE, warning=FALSE----

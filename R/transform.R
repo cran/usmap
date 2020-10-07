@@ -156,7 +156,7 @@ usmap_transform.data.frame <- function(data) {
   }
 
   result <- as.data.frame(
-    combined[!duplicated(combined@data[, c(1, 2)], fromLast = TRUE), ]
+    combined[!duplicated(combined@data, fromLast = TRUE), ]
   )
   row.names(result) <- NULL
 
@@ -179,5 +179,5 @@ usmap_crs <- function() {
   }
 
   sp::CRS("+proj=laea +lat_0=45 +lon_0=-100 +x_0=0 +y_0=0
-                     +a=6370997 +b=6370997 +units=m +no_defs")
+          +a=6370997 +b=6370997 +units=m +no_defs")
 }

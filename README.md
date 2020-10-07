@@ -1,69 +1,15 @@
 # 🗺 usmap
-[![CRAN](http://www.r-pkg.org/badges/version/usmap?color=blue)](https://cran.r-project.org/package=usmap) [![Downloads](http://cranlogs.r-pkg.org/badges/grand-total/usmap)](https://cran.r-project.org/package=usmap) [![Build Status](https://travis-ci.org/pdil/usmap.svg?branch=master)](https://travis-ci.org/pdil/usmap) [![codecov](https://codecov.io/gh/pdil/usmap/branch/master/graph/badge.svg)](https://codecov.io/gh/pdil/usmap)
+[![CRAN](http://www.r-pkg.org/badges/version/usmap?color=blue)](https://cran.r-project.org/package=usmap) [![Downloads](http://cranlogs.r-pkg.org/badges/grand-total/usmap)](https://cran.r-project.org/package=usmap) [![Build Status](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2Fpdil%2Fusmap%2Fbadge%3Fref%3Dmaster&style=popout&label=build)](https://actions-badge.atrox.dev/pdil/usmap/goto?ref=master) [![codecov](https://codecov.io/gh/pdil/usmap/branch/master/graph/badge.svg)](https://codecov.io/gh/pdil/usmap)
 
 <p align="center"><img src="https://raw.githubusercontent.com/pdil/usmap/master/resources/example-plots.png" /></p>
 
-<details>
-  <summary>View code used to generate these plots</summary>
-  
-  [resources/examples.R](https://github.com/pdil/usmap/blob/master/resources/examples.R)
-  
-  ``` r
-  library(usmap)
-  library(ggplot2)
-
-  # Blank state map ####
-  blank_state_map <- plot_usmap()
-
-  # Blank county map ####
-  blank_county_map <- plot_usmap("counties")
-
-  # Population by state ####
-  state_pop_map <-
-    plot_usmap(data = statepop, values = "pop_2015") +
-    scale_fill_continuous(low = "white", high = "red", guide = FALSE) +
-    scale_x_continuous(expand = c(0, 0)) + scale_y_continuous(expand = c(0, 0))
-
-  # Population by state with labels ####
-  state_pop_map_labeled <-
-    plot_usmap(data = statepop, values = "pop_2015", labels = TRUE) +
-    scale_fill_continuous(low = "white", high = "red", guide = FALSE) +
-    scale_x_continuous(expand = c(0, 0)) + scale_y_continuous(expand = c(0, 0))
-
-  # Population by county ####
-  county_pop_map <-
-    plot_usmap(data = countypop, values = "pop_2015") +
-    scale_fill_continuous(low = "blue", high = "yellow", guide = FALSE) +
-    scale_x_continuous(expand = c(0, 0)) + scale_y_continuous(expand = c(0, 0))
-
-  # Poverty percentage by county ####
-  county_pov_map <-
-    plot_usmap(data = countypov, values = "pct_pov_2014") +
-    scale_fill_continuous(low = "blue", high = "yellow", guide = FALSE) +
-    scale_x_continuous(expand = c(0, 0)) + scale_y_continuous(expand = c(0, 0))
-
-
-  # Combine plots ####
-  cowplot::plot_grid(
-    blank_state_map,
-    state_pop_map,
-    state_pop_map_labeled,
-    blank_county_map,
-    county_pop_map,
-    county_pov_map,
-    nrow = 2
-  )
-
-  # Save plots ####
-  ggsave("resources/example_plots.png", width = 18, height = 10, units = "in")
-  ```
-</details>
+View code used to generate these plots: [resources/examples.R](https://github.com/pdil/usmap/blob/master/resources/examples.R)
 
 ## Purpose
 Typically in R it is difficult to create nice US [choropleths](https://en.wikipedia.org/wiki/Choropleth_map) that include Alaska and Hawaii. The functions presented here attempt to elegantly solve this problem by manually moving these states to a new location and providing a fortified data frame for mapping and visualization. This allows the user to easily add data to color the map.
 
 ## Shape Files
-The shape files that we use to plot the maps in R are located in the `data-raw` folder. For more information refer to the [US Census Bureau](https://www.census.gov/geo/maps-data/data/tiger-cart-boundary.html). Maps at both the state and county levels are included for convenience (zip code maps may be included in the future).
+The shape files that we use to plot the maps in R are located in the `data-raw` folder. For more information refer to the [US Census Bureau](https://www.census.gov/geographies/mapping-files/time-series/geo/tiger-line-file.html). Maps at both the state and county levels are included for convenience (zip code maps may be included in the future).
 
 ## Installation
 To install from CRAN _(recommended)_, run the following code in an R console:
@@ -205,6 +151,26 @@ plot_usmap("counties", data = countypop, values = "pop_2015", include = .new_eng
 ```
 <p align="center"><img src="https://raw.githubusercontent.com/pdil/usmap/master/resources/example-mountain-states.png" width="33%" /><img src="https://raw.githubusercontent.com/pdil/usmap/master/resources/example-florida-counties.png" width="33%" /><img src="https://raw.githubusercontent.com/pdil/usmap/master/resources/example-new-england-counties.png" width="33%" /></p>
 
-## Acknowledgements
+## Additional Information
+
+### Projection
+`usmap` uses an [Albers equal-area conic projection](https://en.wikipedia.org/wiki/Albers_projection), with arguments as follows:
+```r
+usmap::usmap_crs()
+#> CRS arguments:
+#>     +proj=laea +lat_0=45 +lon_0=-100 +x_0=0
+#>     +y_0=0 +a=6370997 +b=6370997 +units=m
+#>     +no_defs 
+```
+
+To obtain the projection used by `usmap`, use `usmap_crs()`.
+
+Alternatively, the CRS ([coordinate reference system](https://www.nceas.ucsb.edu/sites/default/files/2020-04/OverviewCoordinateReferenceSystems.pdf)) can be created manually with the following command:
+```r
+sp::CRS("+proj=laea +lat_0=45 +lon_0=-100 +x_0=0 +y_0=0
+         +a=6370997 +b=6370997 +units=m +no_defs")
+```
+
+## Acknowledgments
 The code used to generate the map files was based on this blog post by [Bob Rudis](https://github.com/hrbrmstr):    
 [Moving The Earth (well, Alaska & Hawaii) With R](https://rud.is/b/2014/11/16/moving-the-earth-well-alaska-hawaii-with-r/)

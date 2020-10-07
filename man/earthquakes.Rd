@@ -4,7 +4,9 @@
 \name{earthquakes}
 \alias{earthquakes}
 \title{Earthquakes (2019)}
-\format{A data frame with 2254 rows and 3 variables.}
+\format{
+A data frame with 2254 rows and 3 variables.
+}
 \usage{
 data(earthquakes)
 }
@@ -24,7 +26,7 @@ US earthquakes with a magnitude of 2.5 or greater, occurring in the
 }
 \references{
 \itemize{
-    \item \url{https://earthquake.usgs.gov/earthquakes/}
+    \item \url{https://www.usgs.gov/natural-hazards/earthquake-hazards/earthquakes}
     \item \url{https://earthquake.usgs.gov/earthquakes/search/}
   }
 }

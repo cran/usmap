@@ -1,4 +1,15 @@
+# usmap 0.5.1
+
+* New website for the package: https://usmap.dev
+  * Lightweight landing page containing useful information, links, and examples of usmap usage.
+* `state` can now be omitted when using `fips()`. In this case, all available FIPS codes are returned, sorted by state abbreviation, see [Issue #28](https://github.com/pdil/usmap/issues/28).
+* `fips` can now be omitted when using `fips_info()`. In this case, all available states are returned, sorted by state abbreviation, see [Issue #28](https://github.com/pdil/usmap/issues/28).
+* Fix duplicate coordinates from being removed during `usmap_transform` (if value columns differ), see [Issue #32](https://github.com/pdil/usmap/issues/32).
+* Prevent [warnings introduced by `ggplot2` v3.3.0](https://github.com/tidyverse/ggplot2/pull/3346), see [Issue #35](https://github.com/pdil/usmap/issues/35).
+* Set minimum R version to 3.5.0. Versions lower than this do not support the latest version of the `rgdal` package.
+
 # usmap 0.5.0
+Released Friday, September 13, 2019.
 
 ### New Features
 * Ability to include county name labels on county maps, see [Issue #14](https://github.com/pdil/usmap/issues/14).
@@ -19,6 +30,7 @@
   * These can be see in the [.github folder](https://github.com/pdil/usmap/tree/master/.github).
 
 # usmap 0.4.0
+Released Sunday, September 16, 2018.
 
 ### New Features
 * Ability to include state abbreviation labels in state maps, see [Issue #9](https://github.com/pdil/usmap/issues/9).
@@ -38,9 +50,10 @@
 * Add Kusilvak Census Area (FIPS code 02158), replaces Wade Hampton Census Area (FIPS code 02270).
 
 # usmap 0.3.0
+Released Sunday, June 3, 2018.
 
 ### Improvements
-* Update shape files to [2017 versions](https://www.census.gov/geo/maps-data/data/tiger-cart-boundary.html).
+* Update shape files to [2017 versions](https://www.census.gov/geographies/mapping-files/time-series/geo/tiger-line-file.2017.html).
 * Improvements to `fips` and `fips_info`:
   * Vectorization support (e.g. enter multiple states in `fips` to receive a vector of corresponding FIPS codes)
   * e.g. `fips(c("AK", "AL"))` or `fips(c("Alaska", "Alabama"))`
@@ -50,6 +63,7 @@
   * The data frame passed to `plot_usmap` or `map_with_data` (via the `data =` parameter), can now be a two column data frame with columns "fips" and "values" or "state" and "values".
 
 # usmap 0.2.1
+Released Tuesday, August 15, 2017.
 
 ### Improvements
 * Standardize documentation language.
@@ -59,11 +73,13 @@
   * This usually occurs when the codes are read as `numeric` from a `.csv` file.
 
 # usmap 0.2.0
+Released Saturday, April 29, 2017.
 
 * Add `map_with_data` function for adding user-defined data to map data.
 * Add ability to plot map with data automatically (utilizes new `map_with_data` function).
 
 # usmap 0.1.0
+Released Sunday, January 29, 2017.
 
 * First release
 
