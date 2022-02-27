@@ -51,6 +51,38 @@ plot_usmap(
   labs(title = "Western US States", subtitle = "These are the states in the Pacific Timezone.") +
   theme(legend.position = "right")
 
+## ---- fig.show='hide', message=FALSE, warning=FALSE---------------------------
+df <- data.frame(
+  fips = c("02", "01", "05", "04"),
+  values = c(14, 18, 19, 8)
+)
+
+plot_usmap(data = df)
+
+## ---- fig.show='hide', message=FALSE, warning=FALSE---------------------------
+df <- data.frame(
+  fips = c("02", "01", "05", "04"),
+  population = c(14, 18, 19, 8)
+)
+
+plot_usmap(data = df, values = "population")
+
+## ---- fig.show='hide', message=FALSE, warning=FALSE---------------------------
+df <- data.frame(
+  state = c("AL", "Alaska", "AR", "AZ"),
+  values = c(14, 18, 19, 8)
+)
+
+plot_usmap(data = df)
+
+## ---- fig.show='hide', message=FALSE, warning=FALSE---------------------------
+df <- data.frame(
+  fips = c("10001", "10003", "10005"),
+  values = c(93, 98, 41)
+)
+
+plot_usmap(data = df)
+
 ## ---- fig.align='center', fig.width=7, message=FALSE, warning=FALSE-----------
 usmap::plot_usmap(include = .south_region)
 

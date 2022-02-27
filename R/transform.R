@@ -9,6 +9,14 @@
 #'   represents latitude. The names of the data frame column do not matter,
 #'   just that the order of the columns is kept intact.
 #'
+#' @param input_names A character vector of length two which specifies the
+#'   longitude and latitude columns of the input data (the ones that should be
+#'   transformed), respectively. Defaults to `c("lon", "lat")`.
+#'
+#' @param output_names A character vector of length two which specifies the
+#'   longitude and latitude columns of the output data (after transformation),
+#'   respectively. Defaults to `c("x", "y")`.
+#'
 #' @return A data frame containing the transformed coordinates from the
 #'   input data frame with the Albers Equal Area projection applied. The
 #'   transformed columns will be appended to the data frame so that all
@@ -29,13 +37,15 @@
 #'
 #' plot_usmap() + geom_point(
 #'   data = transformed_data,
-#'   aes(x = lon.1, y = lat.1, size = pop),
+#'   aes(x = x, y = y, size = pop),
 #'   color = "red", alpha = 0.5
 #' )
 #'
 #' @rdname usmap_transform
 #' @export
-usmap_transform <- function(data) {
+usmap_transform <- function(data,
+                            input_names = c("lon", "lat"),
+                            output_names = c("x", "y")) {
   # check for maptools
   if (!requireNamespace("maptools", quietly = TRUE)) {
     stop("`maptools` must be installed to use `usmap_transform`.
@@ -59,24 +69,42 @@ usmap_transform <- function(data) {
 
 #' @rdname usmap_transform
 #' @export
-usmap_transform.data.frame <- function(data) {
+usmap_transform.data.frame <- function(data,
+                                       input_names = c("lon", "lat"),
+                                       output_names = c("x", "y")) {
   # ensure data is data.frame
   data <- as.data.frame(data)
 
   # validation
-  if (ncol(data) < 2) {
-    stop("`data` must contain at least two numeric columns with longitude
-         in the first column and latitude in the second.")
-  } else if (class(data[, 1]) != "numeric" | class(data[, 2]) != "numeric") {
-    stop("`data` must contain two numeric columns with longitude
-         in the first column and latitude in the second.")
+  if (length(input_names) != 2 & !any(is.na(as.character(input_names)))) {
+    stop("`input_names` must be a character vector of length 2.")
+  } else {
+    input_names <- as.character(input_names)
+  }
+
+  if (!all(input_names %in% colnames(data))) {
+    stop("All `input_names` must exist as column names in `data`.")
+  }
+
+  if (ncol(data) < 2 |
+      !is.numeric(data[, input_names[1]]) |
+      !is.numeric(data[, input_names[2]])) {
+    stop("`data` must contain at least two numeric columns.")
+  }
+
+  if (length(output_names) != 2 & !any(is.na(as.character(output_names)))) {
+    stop("`output_names` must be a character vector of length 2.")
+  } else {
+    output_names <- as.character(output_names)
   }
 
   # create SpatialPointsDataFrame
+  longlat <- sp::CRS(SRS_string = "EPSG:4326") # long/lat coordinates
+
   spdf <- sp::SpatialPointsDataFrame(
-    coords = data[, c(1, 2)],
+    coords = data[, c(input_names[1], input_names[2])],
     data = data,
-    proj4string = sp::CRS("+proj=longlat +datum=WGS84")
+    proj4string = longlat
   )
 
   # transform to canonical projection
@@ -87,10 +115,10 @@ usmap_transform.data.frame <- function(data) {
   ak_bbox <- sp::bbox(
     matrix(
       c(
-        -4360650, # min transformed longitude
-        -1512250, # max transformed longitude
-        1466100,  # min transformed latitude
-        3911200   # max transformed latitude
+        -4377000, # min transformed longitude
+        -1519000, # max transformed longitude
+        1466000,  # min transformed latitude
+        3914000   # max transformed latitude
       ), ncol = 2
     )
   )
@@ -110,7 +138,7 @@ usmap_transform.data.frame <- function(data) {
       bb = ak_bbox
     )
     alaska <- maptools::elide(alaska, shift = c(-1298669, -3018809))
-    sp::proj4string(alaska) <- sp::proj4string(transformed)
+    sp::proj4string(alaska) <- usmap_crs()
     names(alaska) <- names(transformed)
   }
 
@@ -119,10 +147,10 @@ usmap_transform.data.frame <- function(data) {
   hi_bbox <- sp::bbox(
     matrix(
       c(
-        -5762000, # min transformed longitude
-        -5451950, # max transformed longitude
-        -1051950, # min transformed latitude
-        -441850   # max transformed latitude
+        -5750000, # min transformed longitude
+        -5450000, # max transformed longitude
+        -1050000, # min transformed latitude
+        -441000   # max transformed latitude
       ), ncol = 2
     )
   )
@@ -141,7 +169,8 @@ usmap_transform.data.frame <- function(data) {
       bb = hi_bbox
     )
     hawaii <- maptools::elide(hawaii, shift = c(5400000, -1400000))
-    sp::proj4string(hawaii) <- sp::proj4string(transformed)
+    sp::proj4string(hawaii) <- usmap_crs()
+    names(hawaii) <- names(transformed)
   }
 
   # combine all points
@@ -160,6 +189,8 @@ usmap_transform.data.frame <- function(data) {
   )
   row.names(result) <- NULL
 
+  colnames(result) <- c(colnames(data), output_names)
+
   result
 }
 
@@ -174,10 +205,10 @@ usmap_transform.data.frame <- function(data) {
 #' @export
 usmap_crs <- function() {
   if (!requireNamespace("sp", quietly = TRUE)) {
-    stop("`sp` must be installed to use `usmap_proj`.
+    stop("`sp` must be installed to use `usmap_crs`.
          Use: install.packages(\"sp\") and try again.")
   }
 
-  sp::CRS("+proj=laea +lat_0=45 +lon_0=-100 +x_0=0 +y_0=0
-          +a=6370997 +b=6370997 +units=m +no_defs")
+  sp::CRS(paste("+proj=laea +lat_0=45 +lon_0=-100 +x_0=0 +y_0=0",
+                "+a=6370997 +b=6370997 +units=m +no_defs"))
 }

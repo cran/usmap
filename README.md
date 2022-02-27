@@ -1,5 +1,5 @@
 # 🗺 usmap
-[![CRAN](http://www.r-pkg.org/badges/version/usmap?color=blue)](https://cran.r-project.org/package=usmap) [![Downloads](http://cranlogs.r-pkg.org/badges/grand-total/usmap)](https://cran.r-project.org/package=usmap) [![Build Status](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2Fpdil%2Fusmap%2Fbadge%3Fref%3Dmaster&style=popout&label=build)](https://actions-badge.atrox.dev/pdil/usmap/goto?ref=master) [![codecov](https://codecov.io/gh/pdil/usmap/branch/master/graph/badge.svg)](https://codecov.io/gh/pdil/usmap)
+[![CRAN](http://www.r-pkg.org/badges/version/usmap?color=blue)](https://cran.r-project.org/package=usmap) [![Downloads](http://cranlogs.r-pkg.org/badges/grand-total/usmap)](https://cran.r-project.org/package=usmap) [![Build Status](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2Fpdil%2Fusmap%2Fbadge%3Fref%3Dmaster&style=popout&label=build)](https://actions-badge.atrox.dev/pdil/usmap/goto?ref=master) [![codecov](https://codecov.io/gh/pdil/usmap/branch/master/graph/badge.svg)](https://app.codecov.io/gh/pdil/usmap)
 
 <p align="center"><img src="https://raw.githubusercontent.com/pdil/usmap/master/resources/example-plots.png" /></p>
 
@@ -9,7 +9,15 @@ View code used to generate these plots: [resources/examples.R](https://github.co
 Typically in R it is difficult to create nice US [choropleths](https://en.wikipedia.org/wiki/Choropleth_map) that include Alaska and Hawaii. The functions presented here attempt to elegantly solve this problem by manually moving these states to a new location and providing a fortified data frame for mapping and visualization. This allows the user to easily add data to color the map.
 
 ## Shape Files
-The shape files that we use to plot the maps in R are located in the `data-raw` folder. For more information refer to the [US Census Bureau](https://www.census.gov/geographies/mapping-files/time-series/geo/tiger-line-file.html). Maps at both the state and county levels are included for convenience (zip code maps may be included in the future).
+The shape files that we use to plot the maps in R are located in the [`usmapdata`](https://github.com/pdil/usmapdata) package. These are generated from the [US Census Bureau cartographic boundary files](https://www.census.gov/geographies/mapping-files/time-series/geo/cartographic-boundary.html). Maps at both the state and county levels are included for convenience.
+
+#### Update History
+
+| Date             | `usmap` version | Shape File Year | Link |
+| ---              | :-:             | :-:             | :-:  |
+| -                | 0.6.0 (pending) | 2020            | [🔗](https://www.census.gov/geographies/mapping-files/time-series/geo/cartographic-boundary.2020.html) |
+| June 3, 2018     | 0.3.0           | 2017            | [🔗](https://www.census.gov/geographies/mapping-files/time-series/geo/carto-boundary-file.2017.html)   |
+| January 29, 2017 | 0.1.0           | 2015            | [🔗](https://www.census.gov/geographies/mapping-files/time-series/geo/carto-boundary-file.2015.html)   |
 
 ## Installation
 To install from CRAN _(recommended)_, run the following code in an R console:
@@ -51,9 +59,9 @@ state_map <- us_map(regions = "states")
   <summary><code>str(state_map)</code></summary>
 
   ```r
-  #> 'data.frame':    12999 obs. of  9 variables:
-  #> $ long : num  1091779 1091268 1091140 1090940 1090913 ...
-  #> $ lat  : num  -1380695 -1376372 -1362998 -1343517 -1341006 ...
+  #> 'data.frame':	13696 obs. of  9 variables:
+  #> $ x    : num  1093752 1093244 1093125 1092939 1092914 ...
+  #> $ y    : num  -1378545 -1374233 -1360891 -1341458 -1338952 ...
   #> $ order: int  1 2 3 4 5 6 7 8 9 10 ...
   #> $ hole : logi  FALSE FALSE FALSE FALSE FALSE FALSE ...
   #> $ piece: int  1 1 1 1 1 1 1 1 1 1 ...
@@ -71,9 +79,9 @@ county_map <- us_map(regions = "counties")
   <summary><code>str(county_map)</code></summary>
 
   ```r
-  #> 'data.frame':    54187 obs. of  10 variables:
-  #> $ long  : num  1225889 1244873 1244129 1272010 1276797 ...
-  #> $ lat   : num  -1275020 -1272331 -1267515 -1262889 -1295514 ...
+  #> 'data.frame':	55097 obs. of  10 variables:
+  #> $ x     : num  811200 829408 828835 855600 859265 ...
+  #> $ y     : num  -821207 -819722 -814641 -811770 -846158 ...
   #> $ order : int  1 2 3 4 5 6 7 8 9 10 ...
   #> $ hole  : logi  FALSE FALSE FALSE FALSE FALSE FALSE ...
   #> $ piece : int  1 1 1 1 1 1 1 1 1 1 ...
@@ -144,26 +152,66 @@ plot_usmap("counties", data = countypov, values = "pct_pov_2014", include = "FL"
 plot_usmap("counties", data = countypop, values = "pop_2015", include = .new_england) + 
     ggplot2::scale_fill_continuous(low = "blue", high = "yellow", guide = FALSE)
 ```
-<p align="center"><img src="https://raw.githubusercontent.com/pdil/usmap/master/resources/example-mountain-states.png" width="33%" /><img src="https://raw.githubusercontent.com/pdil/usmap/master/resources/example-florida-counties.png" width="33%" /><img src="https://raw.githubusercontent.com/pdil/usmap/master/resources/example-new-england-counties.png" width="33%" /></p>
+<p align="center"><img src="https://raw.githubusercontent.com/pdil/usmap/master/resources/example-usage.png" /></p>
 
 ## Additional Information
 
 ### Projection
 `usmap` uses an [Albers equal-area conic projection](https://en.wikipedia.org/wiki/Albers_projection), with arguments as follows:
-```r
-usmap::usmap_crs()
-#> CRS arguments:
-#>     +proj=laea +lat_0=45 +lon_0=-100 +x_0=0
-#>     +y_0=0 +a=6370997 +b=6370997 +units=m
-#>     +no_defs 
-```
+
+<details>
+  <summary><code>usmap::usmap_crs()</code></summary>
+  
+  ```
+  #> Coordinate Reference System:
+  #> Deprecated Proj.4 representation:
+  #>  +proj=laea +lat_0=45 +lon_0=-100 +x_0=0 +y_0=0 +ellps=sphere
+  #> +units=m +no_defs 
+  #> WKT2 2019 representation:
+  #> PROJCRS["unknown",
+  #>     BASEGEOGCRS["unknown",
+  #>         DATUM["unknown",
+  #>             ELLIPSOID["Normal Sphere (r=6370997)",6370997,0,
+  #>                 LENGTHUNIT["metre",1,
+  #>                     ID["EPSG",9001]]]],
+  #>         PRIMEM["Greenwich",0,
+  #>             ANGLEUNIT["degree",0.0174532925199433],
+  #>             ID["EPSG",8901]]],
+  #>     CONVERSION["unknown",
+  #>         METHOD["Lambert Azimuthal Equal Area (Spherical)",
+  #>             ID["EPSG",1027]],
+  #>         PARAMETER["Latitude of natural origin",45,
+  #>             ANGLEUNIT["degree",0.0174532925199433],
+  #>             ID["EPSG",8801]],
+  #>         PARAMETER["Longitude of natural origin",-100,
+  #>             ANGLEUNIT["degree",0.0174532925199433],
+  #>             ID["EPSG",8802]],
+  #>         PARAMETER["False easting",0,
+  #>             LENGTHUNIT["metre",1],
+  #>             ID["EPSG",8806]],
+  #>         PARAMETER["False northing",0,
+  #>             LENGTHUNIT["metre",1],
+  #>             ID["EPSG",8807]]],
+  #>     CS[Cartesian,2],
+  #>         AXIS["(E)",east,
+  #>             ORDER[1],
+  #>             LENGTHUNIT["metre",1,
+  #>                 ID["EPSG",9001]]],
+  #>         AXIS["(N)",north,
+  #>             ORDER[2],
+  #>             LENGTHUNIT["metre",1,
+  #>                 ID["EPSG",9001]]]] 
+  ```
+</details>
+
+This is the same projection used by the [US National Atlas](https://epsg.io/2163).
 
 To obtain the projection used by `usmap`, use `usmap_crs()`.
 
 Alternatively, the CRS ([coordinate reference system](https://www.nceas.ucsb.edu/sites/default/files/2020-04/OverviewCoordinateReferenceSystems.pdf)) can be created manually with the following command:
 ```r
-sp::CRS("+proj=laea +lat_0=45 +lon_0=-100 +x_0=0 +y_0=0
-         +a=6370997 +b=6370997 +units=m +no_defs")
+sp::CRS(paste("+proj=laea +lat_0=45 +lon_0=-100 +x_0=0 +y_0=0",
+              "+a=6370997 +b=6370997 +units=m +no_defs"))
 ```
 
 ## Acknowledgments

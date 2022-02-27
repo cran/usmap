@@ -97,23 +97,18 @@ plot_usmap <- function(regions = c("states", "state", "counties", "county"),
     geom_args[["mapping"]] <- ggplot2::aes(x = x, y = y, group = group)
   } else {
     map_df <- map_with_data(data, values = values, include = include, exclude = exclude)
-    geom_args[["mapping"]] <- ggplot2::aes(x = x, y = y, group = group, fill = map_df[, values])
+    geom_args[["mapping"]] <- ggplot2::aes_string(x = "x", y = "y", group = "group", fill = values)
   }
 
   polygon_layer <- do.call(ggplot2::geom_polygon, geom_args)
 
   # create label layer
   if (labels) {
-    centroidLabelsColClasses <- c("numeric", "numeric", "character", "character", "character")
+    if (regions_ == "state") regions__ <- "states"
+    else if (regions_ == "county") regions__ <- "counties"
+    else { regions__ <- regions_ }
 
-    if (regions_ == "county" | regions_ == "counties") {
-      # add extra column for the county name
-      centroidLabelsColClasses <- c(centroidLabelsColClasses, "character")
-    }
-
-    centroid_labels <- utils::read.csv(system.file("extdata", paste0("us_", regions_, "_centroids.csv"), package = "usmap"),
-                                       colClasses = centroidLabelsColClasses,
-                                       stringsAsFactors = FALSE)
+    centroid_labels <- usmapdata::centroid_labels(regions__)
 
     if (length(include) > 0) {
       centroid_labels <- centroid_labels[
