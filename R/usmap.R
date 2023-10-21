@@ -37,8 +37,7 @@
 #'
 #' @author Paolo Di Lorenzo \cr
 #' \itemize{
-#'   \item Email: \email{paolo@@dilorenzo.pl}
-#'   \item Website: \url{https://dilorenzo.pl}
+#'   \item Email: \email{dilorenzo@@hey}
 #'   \item GitHub: \url{https://github.com/pdil/}
 #' }
 #'
@@ -64,11 +63,6 @@
 #' @docType package
 #' @name usmap
 "_PACKAGE"
-
-## Prevent R CMD check from catching the following variables
-## as missing global variables (used in ggplot2::aes)
-if (getRversion() >= "2.15.1")
-  utils::globalVariables(c("abbr", "county", "group", "x", "y"))
 
 #' Retrieve US map data
 #'
