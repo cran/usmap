@@ -4,27 +4,27 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 
-## ---- fig.align='center', fig.width=7, fig.height=5, message=FALSE, warning=FALSE----
+## ----fig.align='center', fig.width=7, fig.height=5, message=FALSE, warning=FALSE----
 usmap::plot_usmap("states", labels = TRUE)
 
-## ---- fig.align='center', fig.width=7, fig.height=5, message=FALSE, warning=FALSE----
+## ----fig.align='center', fig.width=7, fig.height=5, message=FALSE, warning=FALSE----
 usmap::plot_usmap("counties", include = c("MA", "CT", "RI"), labels = TRUE)
 
-## ---- fig.align='center', fig.width=7, fig.height=5, message=FALSE, warning=FALSE----
+## ----fig.align='center', fig.width=7, fig.height=5, message=FALSE, warning=FALSE----
 usmap::plot_usmap("counties",
                   include = c("MA", "CT", "RI"),
                   labels = TRUE, label_color = "blue")
 
-## ---- fig.align='center', fig.width=7, fig.height=5, message=FALSE, warning=FALSE----
+## ----fig.align='center', fig.width=7, fig.height=5, message=FALSE, warning=FALSE----
 usmap::plot_usmap("counties",
                   include = c("MA", "CT", "RI"),
                   labels = TRUE, label_color = "blue",
                   fill = "yellow", alpha = 0.25, color = "orange", linewidth = 2)
 
-## ---- warning=FALSE-----------------------------------------------------------
+## ----warning=FALSE------------------------------------------------------------
 usmap::usmap_crs()@projargs
 
-## ---- fig.align='center', fig.width=8, fig.height=5, message=FALSE, warning=FALSE----
+## ----fig.align='center', fig.width=8, fig.height=5, message=FALSE, warning=FALSE----
 library(usmap)
 library(ggplot2)
 
@@ -38,7 +38,7 @@ plot_usmap() +
        size = "Magnitude") +
   theme(legend.position = "right")
 
-## ---- fig.align='center', fig.width=8, fig.height=5, message=FALSE, warning=FALSE----
+## ----fig.align='center', fig.width=8, fig.height=5, message=FALSE, warning=FALSE----
 library(usmap)
 library(ggplot2)
 

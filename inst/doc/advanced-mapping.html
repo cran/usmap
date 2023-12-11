@@ -12,7 +12,7 @@
 
 <meta name="author" content="Paolo Di Lorenzo" />
 
-<meta name="date" content="2023-10-20" />
+<meta name="date" content="2023-12-11" />
 
 <title>3. Advanced Mapping</title>
 
@@ -340,7 +340,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 <h1 class="title toc-ignore">3. Advanced Mapping</h1>
 <h4 class="author">Paolo Di Lorenzo</h4>
-<h4 class="date">2023-10-20</h4>
+<h4 class="date">2023-12-11</h4>
 
 
 
@@ -401,11 +401,7 @@ and <code>geom_label</code>.</p>
 <p>The projection used by <code>usmap</code> can also be accessed by
 using <code>usmap_crs()</code>:</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>usmap<span class="sc">::</span><span class="fu">usmap_crs</span>()<span class="sc">@</span>projargs</span>
-<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="co">#&gt; The legacy packages maptools, rgdal, and rgeos, underpinning this package</span></span>
-<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="co">#&gt; will retire shortly. Please refer to R-spatial evolution reports on</span></span>
-<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="co">#&gt; https://r-spatial.org/r/2023/05/15/evolution4.html for details.</span></span>
-<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="co">#&gt; This package is now running under evolution status 0</span></span>
-<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="co">#&gt; [1] &quot;+proj=laea +lat_0=45 +lon_0=-100 +x_0=0 +y_0=0 +ellps=sphere +units=m +no_defs&quot;</span></span></code></pre></div>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="co">#&gt; [1] &quot;+proj=laea +lat_0=45 +lon_0=-100 +x_0=0 +y_0=0 +ellps=sphere +units=m +no_defs&quot;</span></span></code></pre></div>
 <p>A convenience method called <code>usmap_transform</code> is provided
 that transforms a <code>data.frame</code> containing longitude/latitude
 columns to use this projection. (Currently, only
