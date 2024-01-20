@@ -1,27 +1,37 @@
-#' Convert coordinate date frame to usmap projection
+#' Convert spatial data to usmap projection
 #'
-#' @description Converting an external data frame of map coordinates will
+#' @description Converting a spatial object of map coordinates will
 #'   allow those points to line up with the regular usmap plot by applying
-#'   the same Albers Equal Area projection to those points as well.
+#'   the same US National Atlas Equal Area projection (including Alaska and
+#'   Hawaii of course) to those points as well.
+#'
+#'   The input `data` is assumed to contain longitude and latitude coordinates
+#'   by default. If this is not the case, provide an [sf::st_crs] object
+#'   to the `crs` parameter with the appropriate coordinate reference system.
 #'
 #' @param data A data frame containing coordinates in a two column format
 #'   where the first column represents longitude and the second data frame
 #'   represents latitude. The names of the data frame column do not matter,
 #'   just that the order of the columns is kept intact.
 #'
+#' @param ... Additional parameters passed onto [sf::st_as_sf].
+#'   By default, `crs = sf::st_crs(4326)` is used, implying longitude and latitude
+#'   coordinates.
+#'
 #' @param input_names A character vector of length two which specifies the
 #'   longitude and latitude columns of the input data (the ones that should be
-#'   transformed), respectively. Defaults to `c("lon", "lat")`.
+#'   transformed), respectively. Only required if the input data is
+#'   a `data.frame` object. Defaults to `c("lon", "lat")`.
 #'
-#' @param output_names A character vector of length two which specifies the
-#'   longitude and latitude columns of the output data (after transformation),
-#'   respectively. Defaults to `c("x", "y")`.
+#' @param output_names Defunct, this parameter is no longer used. The output
+#'   of this function will have a column named `"geometry"` with the transformed
+#'   coordinates. This parameter may be removed in a future version.
 #'
-#' @return A data frame containing the transformed coordinates from the
-#'   input data frame with the Albers Equal Area projection applied. The
-#'   transformed columns will be appended to the data frame so that all
+#' @return An `sf` object containing the transformed coordinates from the
+#'   input data frame with the US National Atlas Equal Area projection applied.
+#'   The transformed columns will be appended to the data frame so that all
 #'   original columns should remain intact.
-#'
+
 #' @examples
 #' data <- data.frame(
 #'   lon = c(-74.01, -95.36, -118.24, -87.65, -134.42, -157.86),
@@ -35,39 +45,31 @@
 #' # Plot transformed data on map
 #' library(ggplot2)
 #'
-#' plot_usmap() + geom_point(
+#' plot_usmap() + geom_sf(
 #'   data = transformed_data,
-#'   aes(x = x, y = y, size = pop),
+#'   aes(size = pop),
 #'   color = "red", alpha = 0.5
 #' )
 #'
 #' @rdname usmap_transform
 #' @export
-usmap_transform <- function(data,
-                            input_names = c("lon", "lat"),
-                            output_names = c("x", "y")) {
+usmap_transform <- function(data, ...) {
+  UseMethod("usmap_transform")
+}
 
-  # check for sf
-  if (!requireNamespace("sf", quietly = TRUE)) {
-    stop("`sf` must be installed to use `usmap_transform`.
-         Use: install.packages(\"sf\") and try again.")
-  }
-
-  # check for sp
-  if (!requireNamespace("sp", quietly = TRUE)) {
-    stop("`sp` must be installed to use `usmap_transform`.
-         Use: install.packages(\"sp\") and try again.")
-  }
-
-  UseMethod("usmap_transform", data)
+#' @rdname usmap_transform
+#' @export
+usmap_transform.sf <- function(data, ...) {
+  perform_transform(data, ...)
 }
 
 #' @rdname usmap_transform
 #' @export
 usmap_transform.data.frame <- function(data,
+                                       ...,
                                        input_names = c("lon", "lat"),
-                                       output_names = c("x", "y")) {
-  # ensure data is data.frame
+                                       output_names = NULL) {
+  # ensure input is data.frame
   data <- as.data.frame(data)
 
   # validation
@@ -87,98 +89,82 @@ usmap_transform.data.frame <- function(data,
     stop("`data` must contain at least two numeric columns.")
   }
 
-  if (length(output_names) != 2 && !any(is.na(as.character(output_names)))) {
-    stop("`output_names` must be a character vector of length 2.")
-  } else {
-    output_names <- as.character(output_names)
+  if (!is.null(output_names)) {
+    warning("`output_names` is no longer used. This parameter will be removed in a future version of `usmap`.")
   }
 
-  # create SpatialPointsDataFrame
-  longlat <- sp::CRS(SRS_string = "EPSG:4326") # long/lat coordinates
+  # convert to sf and perform transformation
+  data <- sf::st_as_sf(data, coords = input_names)
+  perform_transform(data, ...)
+}
 
-  spdf <- sp::SpatialPointsDataFrame(
-    coords = data[, c(input_names[1], input_names[2])],
-    data = data,
-    proj4string = longlat
-  )
+#' Transform `sf` coordinates to `usmap` transform
+#'
+#' Internal function with common functionality for transforming coordinates.
+#' Using this function directly is not recommended.
+#'
+#' @keywords internal
+perform_transform <- function(data, ...) {
+  data_sf <- sf::st_as_sf(data, ...)
 
-  # transform to canonical projection
-  transformed <- sp::spTransform(spdf, usmap_crs())
+  if (is.na(sf::st_crs(data_sf))) {
+    crs <- list(...)[["crs"]]
+    if (is.null(crs)) crs <- sf::st_crs(4326)
+    sf::st_crs(data_sf) <- crs
+  }
 
-  # transform Alaska points
+  # Transform to canonical projection
+  transformed <- sf::st_transform(data_sf, usmap_crs())
+  sf::st_agr(transformed) <- "constant"
 
-  ak_bbox <- sp::bbox(
-    matrix(
+  # Transform Alaska points
+  ak_bbox <- sf::st_as_sfc(
+    sf::st_bbox(
       c(
-        -4377000, # min transformed longitude
-        -1519000, # max transformed longitude
-        1466000,  # min transformed latitude
-        3914000   # max transformed latitude
-      ), ncol = 2
+        xmin = -4377000,
+        xmax = -1519000,
+        ymin = 1466000,
+        ymax = 3914000
+      ),
+      crs = usmap_crs()
     )
   )
+  alaska <- sf::st_intersection(transformed, ak_bbox)
 
-  alaska <- transformed[
-    transformed@coords[, 1] >= ak_bbox[1, 1] &
-      transformed@coords[, 1] <= ak_bbox[1, 2] &
-      transformed@coords[, 2] >= ak_bbox[2, 1] &
-      transformed@coords[, 2] <= ak_bbox[2, 2],
-  ]
-
-  if (length(alaska) > 0) {
-    alaska <- sp::elide(
-      alaska,
-      rotate = -50,
-      scale = max(apply(ak_bbox, 1, diff)) / 2.3,
-      bb = ak_bbox
-    )
-    alaska <- sp::elide(alaska, shift = c(-1298669, -3018809))
-    sp::proj4string(alaska) <- usmap_crs()
-    names(alaska) <- names(transformed)
+  if (nrow(alaska) > 0) {
+    sf::st_geometry(alaska) <- sf::st_geometry(alaska) * usmapdata:::transform2D(-50, 1 / 2)
+    sf::st_geometry(alaska) <- sf::st_geometry(alaska) + c(3e5, -2e6)
+    sf::st_crs(alaska) <- usmap_crs()
   }
 
-  # transform Hawaii points
-
-  hi_bbox <- sp::bbox(
-    matrix(
+  # Transform Hawaii points
+  hi_bbox <- sf::st_as_sfc(
+    sf::st_bbox(
       c(
-        -5750000, # min transformed longitude
-        -5450000, # max transformed longitude
-        -1050000, # min transformed latitude
-        -441000   # max transformed latitude
-      ), ncol = 2
+        xmin = -5750000,
+        xmax = -5450000,
+        ymin = -1050000,
+        ymax = -441000
+      ),
+      crs = usmap_crs()
     )
   )
+  hawaii <- sf::st_intersection(transformed, hi_bbox)
 
-  hawaii <- transformed[
-    transformed@coords[, 1] >= hi_bbox[1, 1] &
-      transformed@coords[, 1] <= hi_bbox[1, 2] &
-      transformed@coords[, 2] >= hi_bbox[2, 1] &
-      transformed@coords[, 2] <= hi_bbox[2, 2],
-  ]
-
-  if (length(hawaii) > 0) {
-    hawaii <- sp::elide(
-      hawaii,
-      rotate = -35,
-      bb = hi_bbox
-    )
-    hawaii <- sp::elide(hawaii, shift = c(5400000, -1400000))
-    sp::proj4string(hawaii) <- usmap_crs()
-    names(hawaii) <- names(transformed)
+  if (nrow(hawaii) > 0) {
+    sf::st_geometry(hawaii) <- sf::st_geometry(hawaii) * usmapdata:::transform2D(-35)
+    sf::st_geometry(hawaii) <- sf::st_geometry(hawaii) + c(3.6e6, 1.8e6)
+    sf::st_crs(hawaii) <- usmap_crs()
   }
 
-  # combine all points
-  combined <- rbind(transformed, alaska, hawaii)
+  # Re-combine all points
+  transformed_excl_ak <- sf::st_difference(transformed, ak_bbox)
+  sf::st_agr(transformed_excl_ak) <- "constant"
 
-  result <- as.data.frame(
-    combined[!duplicated(combined@data, fromLast = TRUE), ]
-  )
-  row.names(result) <- NULL
+  transformed_excl_ak_hi <- sf::st_difference(transformed_excl_ak, hi_bbox)
+  sf::st_agr(transformed_excl_ak_hi) <- "constant"
 
-  colnames(result) <- c(colnames(data), output_names)
-
-  result
+  rbind(transformed_excl_ak_hi, alaska, hawaii)
 }
 
 #' usmap coordinate reference system
@@ -191,16 +177,5 @@ usmap_transform.data.frame <- function(data,
 #'
 #' @export
 usmap_crs <- function() {
-  if (!requireNamespace("sf", quietly = TRUE)) {
-    stop("`sf` must be installed to use `usmap_transform`.
-         Use: install.packages(\"sf\") and try again.")
-  }
-
-  if (!requireNamespace("sp", quietly = TRUE)) {
-    stop("`sp` must be installed to use `usmap_crs`.
-         Use: install.packages(\"sp\") and try again.")
-  }
-
-  sp::CRS(paste("+proj=laea +lat_0=45 +lon_0=-100 +x_0=0 +y_0=0",
-                "+a=6370997 +b=6370997 +units=m +no_defs"))
+  sf::st_crs(9311)
 }

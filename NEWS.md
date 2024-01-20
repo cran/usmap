@@ -1,4 +1,38 @@
+# usmap 0.7.0
+
+This is a major new release for `usmap`. The data has been modernized to be a [simple features (`sf`)](https://r-spatial.github.io/sf/) object. This will allow for much greater flexibility in the type of data that can be portrayed on the US map. `us_map()`, `plot_usmap()`, and `usmap_transform()` have been updated to work with these new formats. See the examples in the vignettes and `README` for more information.
+
+### Improvements
+* Migrate to new `usmapdata 0.2.0` `sf`-based map data files.
+  * Map data produced by `us_map()` is now returned as an `sf` object instead of a standard data frame.
+  * Allows for further flexibility in manipulation, easier plotting, and reduced file sizes.
+  * There should be no visible changes to existing `usmap` functionality.
+  * If something doesn't look right, please [open an issue](https://github.com/pdil/usmap/issues).
+* Change the output of `usmap_transform()` in accordance with the `sf` change mentioned above.
+  * The output data frame now replaces the `lat`/`lon` columns with a single `geometry` column with the transformed points and can be plotted using `ggplot2::geom_sf()`.
+  * Review the included examples and `advanced-mapping` vignette for more details.
+* `usmap_transform()` now accepts `sf` objects and automatically transforms its `geometry` column to the projection used by this package.
+  * It is now possible to add any geographical features to the plotted map such as rivers, roads, topographical data, etc. using `usmap_transform()` before plotting with `ggplot2::geom_sf()`, see [Issue #12](https://github.com/pdil/usmap/issues/12).
+  * See the provided vignettes and examples for more information.
+  * Input can now also be in any coordinate reference system, if it is not standard longitude/latitude, it can be specified with the `crs` parameter.
+* Add `usrivers` dataset featuring major US rivers.
+  * The dataset is provided in an `sf` object and is ready to be transformed with `usmap_transform()` and plotted with `plot_usmap() + ggplot2::geom_sf()`.
+* Add visual snapshot tests for more resilient plots, see [Issue #80](https://github.com/pdil/usmap/issues/80).
+* Add state abbreviation (`abbr`) column to `citypop` data set.
+* Update and standardize documentation throughout the page.
+  * Includes updates to formatting, links, and language.
+* Rename vignettes to make them easier to find and read in order.
+
+### Bug Fixes
+* `plot_usmap()` warnings have been cleaned up, including a defunct warning that didn't make sense.
+
+### Removed
+* `output_names` is no longer required as a parameter to `usmap_transform()`.
+  * It continues to exist for compatibility but produces a warning and may be removed in a future version of `usmap`.
+  * `usmap_transform()` will output its transformation using the `sf` default of `"geometry"` as the column name.
+
 # usmap 0.6.4
+Released Monday, December 11, 2023.
 
 ### Improvements
 * Replace local state and county FIPS files with `usmapdata::fips_data()`.

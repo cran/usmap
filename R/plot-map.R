@@ -3,7 +3,7 @@
 #' @inheritParams us_map
 #' @param data A data frame containing values to plot on the map. This
 #'   parameter should be a data frame consisting of two columns,
-#'   a fips code (2 characters for state, 5 characters for county)
+#'   a FIPS code (2 characters for state, 5 characters for county)
 #'   and the value that should be associated with that region. The
 #'   columns of \code{data} \emph{must} be \code{fips} or \code{state} and
 #'   the value of the `values` parameter.
@@ -12,13 +12,12 @@
 #' @param theme The theme that should be used for plotting the map. The default
 #'   is \code{theme_map} from \href{https://github.com/jrnold/ggthemes}{ggthemes}.
 #' @param labels Whether or not to display labels on the map. Labels are not displayed
-#'   by default. For now, labels only work for state maps.
-#'   County labels may be added in the future.
+#'   by default.
 #' @param label_color The color of the labels to display. Corresponds to the \code{color}
-#'   option in the \code{\link[ggplot2]{aes}} mapping. The default is \code{"black"}.
+#'   option in the [ggplot2::aes()] mapping. The default is \code{"black"}.
 #'   \href{https://usmap.dev/docs/Rcolor.pdf}{Click here}
 #'   for more color options.
-#' @param ... Other arguments to pass to \code{ggplot2::aes()}. These are
+#' @param ... Other arguments to pass to [ggplot2::aes()]. These are
 #'   often aesthetics, used to set an aesthetic to a fixed value, like \code{color = "red"}
 #'   or \code{size = 3}. They affect the appearance of the polygons used to render
 #'   the map (for example fill color, line color, line thickness, etc.). If any of
@@ -26,12 +25,12 @@
 #'   are set to their default values of \code{color="black"}, \code{fill="white"},
 #'   and \code{size=0.4}.
 #'
-#' @return A \code{\link[ggplot2]{ggplot}} object that contains a basic
+#' @return A [ggplot2::ggplot] object that contains a basic
 #'   US map with the described parameters. Since the result is a \code{ggplot}
-#'   object, it can be extended with more \code{geom} layers, scales, labels,
+#'   object, it can be extended with more [ggplot2::Geom] layers, scales, labels,
 #'   themes, etc.
 #'
-#' @seealso \code{\link{usmap}}, \code{\link[ggplot2]{theme}}
+#' @seealso [usmap], [ggplot2::theme()]
 #'
 #' @examples
 #' plot_usmap()
@@ -75,7 +74,7 @@ plot_usmap <- function(regions = c("states", "state", "counties", "county"),
   .data <- ggplot2::.data
 
   # parse parameters
-  regions_ <- match.arg(regions)
+  regions <- match.arg(regions)
   geom_args <- list(...)
 
   # set geom_polygon defaults
@@ -87,37 +86,30 @@ plot_usmap <- function(regions = c("states", "state", "counties", "county"),
     geom_args[["linewidth"]] <- 0.4
   }
 
-  # only use "fill" setting if data is not included
+  # set default "fill" if data is not included
   if (is.null(geom_args[["fill"]]) && nrow(data) == 0) {
     geom_args[["fill"]] <- "white"
-  } else if (!is.null(geom_args[["fill"]]) && nrow(data) != 0) {
-    warning("`fill` setting is ignored when `data` is provided. Use `fill` to
-            color regions with solid color when no data is being displayed.")
   }
 
   # create polygon layer
   if (nrow(data) == 0) {
-    map_df <- usmap::us_map(regions = regions_, include = include, exclude = exclude)
-    geom_args[["mapping"]] <- ggplot2::aes(x = .data$x, y = .data$y, group = .data$group)
+    map_df <- usmap::us_map(regions = regions, include = include, exclude = exclude)
+    geom_args[["mapping"]] <- ggplot2::aes()
   } else {
     map_df <- usmap::map_with_data(data, values = values, include = include, exclude = exclude)
-    geom_args[["mapping"]] <- ggplot2::aes(
-      x = .data$x,
-      y = .data$y,
-      group = .data$group,
-      fill = .data[[values]]
-    )
+
+    if (!is.null(map_df$county)) regions <- "counties"
+    geom_args[["mapping"]] <- ggplot2::aes(fill = .data[[values]])
   }
 
-  polygon_layer <- do.call(ggplot2::geom_polygon, geom_args)
+  polygon_layer <- do.call(ggplot2::geom_sf, geom_args)
 
   # create label layer
   if (labels) {
-    if (regions_ == "state") regions__ <- "states"
-    else if (regions_ == "county") regions__ <- "counties"
-    else regions__ <- regions_
+    if (regions == "state") regions <- "states"
+    else if (regions == "county") regions <- "counties"
 
-    centroid_labels <- usmapdata::centroid_labels(regions__)
+    centroid_labels <- usmapdata::centroid_labels(regions, as_sf = TRUE)
 
     if (length(include) > 0) {
       centroid_labels <- centroid_labels[
@@ -136,16 +128,16 @@ plot_usmap <- function(regions = c("states", "state", "counties", "county"),
       ), ]
     }
 
-    if (regions_ == "county" || regions_ == "counties") {
-      label_layer <- ggplot2::geom_text(
+    if (regions == "county" || regions == "counties") {
+      label_layer <- ggplot2::geom_sf_text(
         data = centroid_labels,
-        ggplot2::aes(x = .data$x, y = .data$y, label = sub(" County", "", .data$county)),
+        ggplot2::aes(label = sub(" County", "", .data$county)),
         color = label_color
       )
     } else {
-      label_layer <- ggplot2::geom_text(
+      label_layer <- ggplot2::geom_sf_text(
         data = centroid_labels,
-        ggplot2::aes(x = .data$x, y = .data$y, label = .data$abbr), color = label_color
+        ggplot2::aes(label = .data$abbr), color = label_color
       )
     }
   } else {
@@ -153,21 +145,18 @@ plot_usmap <- function(regions = c("states", "state", "counties", "county"),
   }
 
   # construct final plot
-  ggplot2::ggplot(data = map_df) + polygon_layer + label_layer + ggplot2::coord_equal() + theme
+  ggplot2::ggplot(data = map_df) + polygon_layer + label_layer + theme
 }
 
 #' Convenient theme map
 #'
 #' @description
-#' This creates a nice map theme for use in [plot_usmap].
-#' It is borrowed from the `ggthemes` package located at this repository:
-#'   https://github.com/jrnold/ggthemes.
+#' This creates a nice map theme for use in [plot_usmap()].
+#' It originated from the `ggthemes` package located at this repository:
+#'   \url{https://github.com/jrnold/ggthemes}.
 #'
 #' This function was manually rewritten here to avoid the need for
 #'  another package import.
-#'
-#' All theme functions (i.e. `theme_bw`, `theme`, `element_blank`, `%+replace%`)
-#'  come from `ggplot2`.
 #'
 #' @keywords internal
 theme_map <- function(base_size = 9, base_family = "") {

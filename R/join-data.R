@@ -14,11 +14,12 @@
 #'   a value in \code{data}. This value must be of the same type as the \code{value}
 #'   column of \code{data}.
 #'
-#' @return A data frame composed of the map data frame (from \code{\link{us_map}}) except
+#' @return A data frame composed of the map data frame (from [us_map()]) except
 #'   an extra column containing the values in \code{data} is included.
 #'
-#'   The result can be plotted using \code{ggplot2}. See \code{\link{us_map}} or
-#'   \code{\link{plot_usmap}} for more details.
+#'   The result can be plotted using [ggplot2::ggplot()] or [plot_usmap()].
+#'
+#' @seealso [plot_usmap()]
 #'
 #' @examples
 #' state_data <- data.frame(fips = c("01", "02", "04"), values = c(1, 5, 8))
@@ -71,13 +72,12 @@ map_with_data <- function(data,
   # Remove columns in data that are already in map_df
   data$abbr <- NULL
   data$full <- NULL
-  data$piece <- NULL
-  data$order <- NULL
   data$county <- NULL
+  data$geom <- NULL
   #
 
   padding <- ifelse(region_type == "state", 2, 5)
-  data$fips <- stringr::str_pad(data$fips, width = padding, side = "left", pad = "0")
+  data$fips <- sprintf(paste0("%0", padding, "d"), as.numeric(data$fips))
 
   result <- merge(map_df, data, by = "fips", all.x = TRUE, sort = FALSE)
   result[is.na(result[, values]), values] <- na
@@ -85,9 +85,9 @@ map_with_data <- function(data,
   result <- result[, c(setdiff(names(result), names(data)), names(data))]
 
   if (region_type == "state") {
-    result <- result[order(result$full, result$piece, result$order), ]
+    result <- result[order(result$full), ]
   } else {
-    result <- result[order(result$full, result$county, result$piece, result$order), ]
+    result <- result[order(result$full, result$county), ]
   }
 
   result

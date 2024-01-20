@@ -1,10 +1,10 @@
 Package: usmap
-Version: 0.6.4
+Version: 0.7.0
 Title: US Maps Including Alaska and Hawaii
 Description: Obtain United States map data frames of varying region types (e.g. county,
     state). The map data frames include Alaska and Hawaii conveniently placed to the
     bottom left, as they appear in most maps of the US. Convenience functions for plotting
-    choropleths and working with FIPS codes are also provided.
+    choropleths, visualizing spatial data, and working with FIPS codes are also provided.
 Authors@R: person("Paolo", "Di Lorenzo", email = "dilorenzo@hey.com", role = c("aut", "cre"))
 Depends: R (>= 3.5.0)
 License: GPL (>= 3)
@@ -13,14 +13,14 @@ Language: en-US
 LazyData: true
 URL: https://usmap.dev
 BugReports: https://github.com/pdil/usmap/issues
-Imports: rlang, usmapdata (>= 0.1.2)
-Suggests: covr, ggplot2, ggrepel, knitr, proto, rmarkdown, scales, sp,
-        sf, stringr, testthat
+Imports: rlang, usmapdata (>= 0.2.0)
+Suggests: covr, ggplot2, ggrepel, knitr, proto, rmarkdown, scales, sf,
+        testthat, vdiffr
 RoxygenNote: 7.2.3
 VignetteBuilder: knitr
 NeedsCompilation: no
-Packaged: 2023-12-11 20:25:39 UTC; paolo
+Packaged: 2024-01-20 04:30:39 UTC; paolo
 Author: Paolo Di Lorenzo [aut, cre]
 Maintainer: Paolo Di Lorenzo <dilorenzo@hey.com>
 Repository: CRAN
-Date/Publication: 2023-12-11 21:00:02 UTC
+Date/Publication: 2024-01-20 05:00:02 UTC
