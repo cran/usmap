@@ -1,5 +1,3 @@
-context("Retrieving FIPS code info")
-
 test_that("all states returned when no FIPS specified", {
   expect_equal(fips_info()$fips, fips())
 })
@@ -12,8 +10,8 @@ test_that("returns correct state FIPS information", {
     stringsAsFactors = FALSE
   )
 
-  expect_equivalent(fips_info(c(2, 34, 2)), ak_result)
-  expect_equivalent(fips_info(c("02", "34", "02")), ak_result)
+  expect_equal(fips_info(c(2, 34, 2)), ak_result, ignore_attr = TRUE)
+  expect_equal(fips_info(c("02", "34", "02")), ak_result, ignore_attr = TRUE)
 
   ak_result_sorted <- data.frame(
     abbr = c("AK", "NJ"),
@@ -22,10 +20,12 @@ test_that("returns correct state FIPS information", {
     stringsAsFactors = FALSE
   )
 
-  expect_equivalent(fips_info(c(2, 34, 2), sortAndRemoveDuplicates = TRUE),
-                    ak_result_sorted)
-  expect_equivalent(fips_info(c("02", "34", "02"), sortAndRemoveDuplicates = TRUE),
-                    ak_result_sorted)
+  expect_equal(fips_info(c(2, 34, 2), sortAndRemoveDuplicates = TRUE),
+               ak_result_sorted,
+               ignore_attr = TRUE)
+  expect_equal(fips_info(c("02", "34", "02"), sortAndRemoveDuplicates = TRUE),
+               ak_result_sorted,
+               ignore_attr = TRUE)
 })
 
 test_that("returns correct county FIPS information", {
@@ -38,8 +38,8 @@ test_that("returns correct county FIPS information", {
     stringsAsFactors = FALSE
   )
 
-  expect_equivalent(fips_info(c(2020, 2016, 2020)), ak_result)
-  expect_equivalent(fips_info(c("02020", "02016", "02020")), ak_result)
+  expect_equal(fips_info(c(2020, 2016, 2020)), ak_result, ignore_attr = TRUE)
+  expect_equal(fips_info(c("02020", "02016", "02020")), ak_result, ignore_attr = TRUE)
 
   ak_result_sorted <- data.frame(
     full = rep("Alaska", 2),
@@ -49,10 +49,12 @@ test_that("returns correct county FIPS information", {
     stringsAsFactors = FALSE
   )
 
-  expect_equivalent(fips_info(c(2020, 2016, 2020), sortAndRemoveDuplicates = TRUE),
-                    ak_result_sorted)
-  expect_equivalent(fips_info(c("02020", "02016", "02020"), sortAndRemoveDuplicates = TRUE),
-                    ak_result_sorted)
+  expect_equal(fips_info(c(2020, 2016, 2020), sortAndRemoveDuplicates = TRUE),
+               ak_result_sorted,
+               ignore_attr = TRUE)
+  expect_equal(fips_info(c("02020", "02016", "02020"), sortAndRemoveDuplicates = TRUE),
+               ak_result_sorted,
+               ignore_attr = TRUE)
 })
 
 # non-existent yet valid means a FIPS such as "03", which falls

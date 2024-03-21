@@ -57,11 +57,11 @@ for more color options.}
 
 \item{...}{Other arguments to pass to \code{\link[ggplot2:aes]{ggplot2::aes()}}. These are
 often aesthetics, used to set an aesthetic to a fixed value, like \code{color = "red"}
-or \code{size = 3}. They affect the appearance of the polygons used to render
+or \code{linewidth = 3}. They affect the appearance of the polygons used to render
 the map (for example fill color, line color, line thickness, etc.). If any of
-\code{color}/\code{colour}, \code{fill}, or \code{size} are not specified they
+\code{color}/\code{colour}, \code{fill}, or \code{linewidth} are not specified they
 are set to their default values of \code{color="black"}, \code{fill="white"},
-and \code{size=0.4}.}
+and \code{linewidth=0.4}.}
 }
 \value{
 A \link[ggplot2:ggplot]{ggplot2::ggplot} object that contains a basic
@@ -86,12 +86,12 @@ plot_usmap(include = c("CA", "NV", "ID", "OR", "WA")) +
   labs(title = "Western States")
 
 # Color maps with data
-plot_usmap(data = statepop, values = "pop_2015")
+plot_usmap(data = statepop, values = "pop_2022")
 
 # Include labels on map (e.g. state abbreviations)
-plot_usmap(data = statepop, values = "pop_2015", labels = TRUE)
+plot_usmap(data = statepop, values = "pop_2022", labels = TRUE)
 # Choose color for labels
-plot_usmap(data = statepop, values = "pop_2015", labels = TRUE, label_color = "white")
+plot_usmap(data = statepop, values = "pop_2022", labels = TRUE, label_color = "white")
 
 }
 \seealso{

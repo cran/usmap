@@ -19,11 +19,11 @@
 #'   for more color options.
 #' @param ... Other arguments to pass to [ggplot2::aes()]. These are
 #'   often aesthetics, used to set an aesthetic to a fixed value, like \code{color = "red"}
-#'   or \code{size = 3}. They affect the appearance of the polygons used to render
+#'   or \code{linewidth = 3}. They affect the appearance of the polygons used to render
 #'   the map (for example fill color, line color, line thickness, etc.). If any of
-#'   \code{color}/\code{colour}, \code{fill}, or \code{size} are not specified they
+#'   \code{color}/\code{colour}, \code{fill}, or \code{linewidth} are not specified they
 #'   are set to their default values of \code{color="black"}, \code{fill="white"},
-#'   and \code{size=0.4}.
+#'   and \code{linewidth=0.4}.
 #'
 #' @return A [ggplot2::ggplot] object that contains a basic
 #'   US map with the described parameters. Since the result is a \code{ggplot}
@@ -46,12 +46,12 @@
 #'   labs(title = "Western States")
 #'
 #' # Color maps with data
-#' plot_usmap(data = statepop, values = "pop_2015")
+#' plot_usmap(data = statepop, values = "pop_2022")
 #'
 #' # Include labels on map (e.g. state abbreviations)
-#' plot_usmap(data = statepop, values = "pop_2015", labels = TRUE)
+#' plot_usmap(data = statepop, values = "pop_2022", labels = TRUE)
 #' # Choose color for labels
-#' plot_usmap(data = statepop, values = "pop_2015", labels = TRUE, label_color = "white")
+#' plot_usmap(data = statepop, values = "pop_2022", labels = TRUE, label_color = "white")
 #'
 #' @importFrom rlang .data
 #' @export
@@ -109,7 +109,7 @@ plot_usmap <- function(regions = c("states", "state", "counties", "county"),
     if (regions == "state") regions <- "states"
     else if (regions == "county") regions <- "counties"
 
-    centroid_labels <- usmapdata::centroid_labels(regions, as_sf = TRUE)
+    centroid_labels <- usmapdata::centroid_labels(regions)
 
     if (length(include) > 0) {
       centroid_labels <- centroid_labels[
@@ -174,6 +174,6 @@ theme_map <- function(base_size = 9, base_family = "") {
                    panel.grid = element_blank,
                    panel.spacing = unit(0, "lines"),
                    plot.background = element_blank,
-                   legend.justification = c(0, 0),
-                   legend.position = c(0, 0))
+                   legend.position = "inside",
+                   legend.justification.inside = c(0, 0))
 }
